@@ -1,96 +1,483 @@
-# For most projects, this workflow file will not need changing; you simply need
-# to commit it to your repository.
-#
-# You may wish to alter this file to override the set of languages analyzed,
-# or to provide custom queries or build logic.
-#
-# ******** NOTE ********
-# We have attempted to detect the languages in your repository. Please check
-# the `language` matrix defined below to confirm you have the correct set of
-# supported CodeQL languages.
-#
-name: "CodeQL Advanced"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Search</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-  schedule:
-    - cron: '38 2 * * 0'
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
 
-jobs:
-  analyze:
-    name: Analyze (${{ matrix.language }})
-    # Runner size impacts CodeQL analysis time. To learn more, please see:
-    #   - https://gh.io/recommended-hardware-resources-for-running-codeql
-    #   - https://gh.io/supported-runners-and-hardware-resources
-    #   - https://gh.io/using-larger-runners (GitHub.com only)
-    # Consider using larger runners or machines with greater resources for possible analysis time improvements.
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
-    permissions:
-      # required for all workflows
-      security-events: write
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
 
-      # required to fetch internal or private CodeQL packs
-      packages: read
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
 
-      # only required for workflows in private repositories
-      actions: read
-      contents: read
+        .floating-orbs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
 
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-        # CodeQL supports the following values keywords for 'language': 'actions', 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
-        # Use `c-cpp` to analyze code written in C, C++ or both
-        # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
-        # Use 'javascript-typescript' to analyze code written in JavaScript, TypeScript or both
-        # To learn more about changing the languages that are analyzed or customizing the build mode for your analysis,
-        # see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning.
-        # If you are analyzing a compiled language, you can modify the 'build-mode' for that language to customize how
-        # your codebase is analyzed, see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            animation: float 20s infinite linear;
+        }
 
-    # Add any setup steps before running the `github/codeql-action/init` action.
-    # This includes steps like installing compilers or runtimes (`actions/setup-node`
-    # or others). This is typically only required for manual builds.
-    # - name: Setup runtime (example)
-    #   uses: actions/setup-example@v1
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); }
+            100% { transform: translateY(-100px) rotate(360deg); }
+        }
 
-    # Initializes the CodeQL tools for scanning.
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
-      with:
-        languages: ${{ matrix.language }}
-        build-mode: ${{ matrix.build-mode }}
-        # If you wish to specify custom queries, you can do so here or in a config file.
-        # By default, queries listed here will override any specified in a config file.
-        # Prefix the list here with "+" to use these queries and those in the config file.
+        .header {
+            padding: 2rem;
+            text-align: center;
+            color: white;
+        }
 
-        # For more details on CodeQL's query packs, refer to: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
-        # queries: security-extended,security-and-quality
+        .logo {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #fff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
 
-    # If the analyze step fails for one of the languages you are analyzing with
-    # "We were unable to automatically build your code", modify the matrix above
-    # to set the build mode to "manual" for that language. Then modify this step
-    # to build your code.
-    # ℹ️ Command-line programs to run using the OS shell.
-    # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
-    - if: matrix.build-mode == 'manual'
-      shell: bash
-      run: |
-        echo 'If you are using a "manual" build mode for one or more of the' \
-          'languages you are analyzing, replace this with the commands to build' \
-          'your code, for example:'
-        echo '  make bootstrap'
-        echo '  make release'
-        exit 1
+        .tagline {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
 
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
-      with:
-        category: "/language:${{matrix.language}}"
+        .search-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin-top: -100px;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1.5rem 4rem 1.5rem 2rem;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            color: white;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+            transform: translateY(-2px);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+
+        .action-btn {
+            padding: 0.8rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            color: white;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .results-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: none;
+        }
+
+        .result-item {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .result-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .result-title {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-url {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-description {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+
+        .api-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 255, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            color: white;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff00;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: white;
+            margin: 2rem 0;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .search-input {
+                font-size: 1rem;
+                padding: 1.2rem 3.5rem 1.2rem 1.5rem;
+            }
+            
+            .search-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            
+            .quick-actions {
+                gap: 0.5rem;
+            }
+            
+            .action-btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg"></div>
+    
+    <div class="floating-orbs"></div>
+
+    <div class="api-status">
+        <div class="status-dot"></div>
+        <span>API Online</span>
+    </div>
+
+    <div class="header">
+        <h1 class="logo">Neural Search</h1>
+        <p class="tagline">Intelligent search powered by advanced AI</p>
+    </div>
+
+    <div class="search-container">
+        <div class="search-box">
+            <input type="text" class="search-input" placeholder="Search anything..." id="searchInput">
+            <button class="search-btn" id="searchBtn">🔍</button>
+        </div>
+
+        <div class="quick-actions">
+            <button class="action-btn" onclick="quickSearch('latest news')">Latest News</button>
+            <button class="action-btn" onclick="quickSearch('AI trends')">AI Trends</button>
+            <button class="action-btn" onclick="quickSearch('tech reviews')">Tech Reviews</button>
+            <button class="action-btn" onclick="quickSearch('tutorials')">Tutorials</button>
+            <button class="action-btn" onclick="quickSearch('research papers')">Research</button>
+        </div>
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Searching the neural network...</p>
+    </div>
+
+    <div class="results-container" id="resultsContainer">
+        <!-- Results will be populated here -->
+    </div>
+
+    <div class="footer">
+        <p>Powered by Neural Search API Gateway • Global CDN • Real-time indexing</p>
+    </div>
+
+    <script>
+        // Create floating orbs
+        function createOrbs() {
+            const orbsContainer = document.querySelector('.floating-orbs');
+            for (let i = 0; i < 15; i++) {
+                const orb = document.createElement('div');
+                orb.className = 'orb';
+                orb.style.left = Math.random() * 100 + '%';
+                orb.style.width = orb.style.height = Math.random() * 80 + 20 + 'px';
+                orb.style.animationDelay = Math.random() * 20 + 's';
+                orb.style.animationDuration = Math.random() * 10 + 15 + 's';
+                orbsContainer.appendChild(orb);
+            }
+        }
+
+        // Mock API endpoints
+        const API_ENDPOINTS = [
+            'https://api.neuralsearch.ai/v1/search',
+            'https://api-us.neuralsearch.ai/v1/search',
+            'https://api-eu.neuralsearch.ai/v1/search',
+            'https://api-asia.neuralsearch.ai/v1/search'
+        ];
+
+        // Mock search results
+        const mockResults = [
+            {
+                title: "Advanced Neural Networks in Modern AI",
+                url: "https://research.ai/neural-networks-2024",
+                description: "Comprehensive overview of the latest developments in neural network architectures, including transformer models, attention mechanisms, and their applications in various domains."
+            },
+            {
+                title: "Building Scalable API Gateways",
+                url: "https://techblog.dev/api-gateway-architecture",
+                description: "Learn how to design and implement robust API gateways that can handle millions of requests per second with proper load balancing and failover mechanisms."
+            },
+            {
+                title: "Global CDN Distribution Strategies",
+                url: "https://cloudarch.io/cdn-optimization",
+                description: "Best practices for distributing content globally using CDN networks, reducing latency, and improving user experience across different geographical regions."
+            },
+            {
+                title: "Real-time Search Indexing at Scale",
+                url: "https://searchtech.com/indexing-strategies",
+                description: "Techniques for building real-time search indexes that can handle continuous data updates while maintaining query performance and relevance."
+            },
+            {
+                title: "Machine Learning for Search Relevance",
+                url: "https://mlsearch.org/relevance-algorithms",
+                description: "How machine learning algorithms improve search result relevance through user behavior analysis, click-through rates, and semantic understanding."
+            }
+        ];
+
+        // Search functionality
+        function performSearch(query) {
+            const loading = document.getElementById('loading');
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            // Show loading
+            loading.style.display = 'block';
+            resultsContainer.style.display = 'none';
+            
+            // Simulate API call with random endpoint
+            const selectedEndpoint = API_ENDPOINTS[Math.floor(Math.random() * API_ENDPOINTS.length)];
+            console.log(`Routing to: ${selectedEndpoint}`);
+            
+            setTimeout(() => {
+                // Hide loading
+                loading.style.display = 'none';
+                
+                // Filter results based on query
+                const filteredResults = query.toLowerCase().includes('api') || query.toLowerCase().includes('gateway') 
+                    ? mockResults.filter(r => r.title.toLowerCase().includes('api') || r.description.toLowerCase().includes('api'))
+                    : mockResults;
+                
+                // Display results
+                displayResults(filteredResults, query);
+                resultsContainer.style.display = 'block';
+            }, Math.random() * 1000 + 500);
+        }
+
+        function displayResults(results, query) {
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = `
+                <div style="color: white; margin-bottom: 1rem; font-size: 0.9rem; opacity: 0.8;">
+                    Found ${results.length} results for "${query}" in ${(Math.random() * 0.5 + 0.1).toFixed(2)} seconds
+                </div>
+            `;
+            
+            results.forEach(result => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = `
+                    <div class="result-title">${result.title}</div>
+                    <div class="result-url">${result.url}</div>
+                    <div class="result-description">${result.description}</div>
+                `;
+                resultItem.onclick = () => window.open(result.url, '_blank');
+                container.appendChild(resultItem);
+            });
+        }
+
+        function quickSearch(query) {
+            document.getElementById('searchInput').value = query;
+            performSearch(query);
+        }
+
+        // Event listeners
+        document.getElementById('searchBtn').addEventListener('click', () => {
+            const query = document.getElementById('searchInput').value.trim();
+            if (query) {
+                performSearch(query);
+            }
+        });
+
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const query = e.target.value.trim();
+                if (query) {
+                    performSearch(query);
+                }
+            }
+        });
+
+        // Initialize
+        createOrbs();
+
+        // API health check simulation
+        setInterval(() => {
+            const statusDot = document.querySelector('.status-dot');
+            const isOnline = Math.random() > 0.1; // 90% uptime
+            statusDot.style.background = isOnline ? '#00ff00' : '#ff6b6b';
+            document.querySelector('.api-status span').textContent = isOnline ? 'API Online' : 'API Degraded';
+        }, 10000);
+    </script>
+</body>
+</html>
